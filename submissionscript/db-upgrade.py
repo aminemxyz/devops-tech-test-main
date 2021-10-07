@@ -21,6 +21,19 @@ db_cursor = db_connection.cursor(dictionary=True)
 print("first step")
 print(db_cursor)
 
+def executeScriptsFromFile(filename):
+    fd = open(filename, 'r')
+    sqlFile = fd.read()
+    fd.close()
+    sqlCommands = sqlFile.split(';')
+
+    for command in sqlCommands:
+        try:
+            if command.strip() != '':
+                db_cursor.execute(command)
+        except IOError:
+            print("Command skipped")
+
 
 def update_table_version(new_number):
     db_cursor.execute("UPDATE versionTable SET version="+"'"+str(new_number)+"'"+";")
@@ -60,6 +73,9 @@ def execution_sql_files(sqlfolder,current_db_version):
         print("PREFIX="+prefix_sql_file(current_file))
         if current_db_version < int(float(prefix_sql_file(current_file))): 
             update_table_version(int(float(prefix_sql_file(current_file))))
+            db_cursor.execute
+            executeScriptsFromFile(sqlfolder+"/"+current_file)
+            db_connection.commit()
             print("UPDATE SQL EXECUTED")
 
 execution_sql_files(sys.argv[1],get_current_version())
